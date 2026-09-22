@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Transformá planillas y liquidaciones de deuda en texto jurídico estructurado.">
+  <title>Estructura — Documentos de deuda</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230c1f1c'/%3E%3Cpath d='M18 18h29v8H27v8h16v8H27v4h21v8H18z' fill='%23b9f227'/%3E%3C/svg%3E">
+  <style>
+    :root{--ink:#0c1f1c;--paper:#f4f4ee;--acid:#b9f227;--muted:#65716c;--line:#d8dcd4;--white:#fff;--danger:#a83428;--shadow:0 26px 70px rgba(10,31,27,.10)}
+    *{box-sizing:border-box}
+    html{font-size:16px}
+    body{margin:0;background:var(--paper);color:var(--ink);font-family:"DM Sans",sans-serif;min-height:100vh}
+    button,input,textarea{font:inherit}
+    button{cursor:pointer}
+    .shell{max-width:1440px;margin:auto;min-height:100vh;padding:0 34px 34px}
+    header{height:82px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:700;letter-spacing:-.03em;font-size:1.16rem}
+    .brand-mark{width:29px;height:29px;border-radius:8px;background:var(--ink);display:grid;place-items:center;color:var(--acid);font-size:.85rem}
+    .status{display:flex;gap:9px;align-items:center;color:var(--muted);font-size:.84rem;font-weight:500}
+    .status i{width:7px;height:7px;border-radius:50%;background:var(--acid);box-shadow:0 0 0 4px rgba(185,242,39,.18)}
+    main{padding-top:48px}
+    .intro{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.52fr);gap:34px;align-items:end;margin-bottom:36px}
+    .eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:.7rem;font-weight:700;color:#52605a;margin-bottom:15px}
+    h1{font-family:"Instrument Serif",serif;font-size:clamp(2.8rem,5.2vw,5.6rem);font-weight:400;letter-spacing:-.045em;line-height:.89;margin:0;max-width:870px}
+    h1 em{color:#587000;font-weight:400}
+    .intro p{font-size:1rem;line-height:1.65;color:var(--muted);margin:0 0 5px;max-width:420px}
+    .workspace{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:18px;align-items:stretch}
+    .panel{background:var(--white);border:1px solid rgba(12,31,28,.08);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+    .panel-head{height:66px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e7e9e4}
+    .panel-head h2{font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;margin:0}
+    .step{color:#7d8782;font-size:.75rem;font-weight:600}
+    .form{padding:22px;display:flex;flex-direction:column;gap:20px}
+    .upload{position:relative;border:1.5px dashed #aeb6b0;border-radius:16px;min-height:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px;transition:.2s ease;background:#fbfcf9}
+    .upload.drag,.upload:hover{border-color:#789b12;background:#f7fce9}
+    .upload input{position:absolute;inset:0;opacity:0;cursor:pointer}
+    .upload-icon{width:44px;height:44px;border-radius:13px;background:var(--ink);color:var(--acid);display:grid;place-items:center;margin-bottom:14px}
+    .upload-icon svg{width:21px}
+    .upload strong{font-size:1rem;margin-bottom:6px}
+    .upload span{font-size:.8rem;color:var(--muted)}
+    .file-pill{display:none;align-items:center;gap:11px;width:100%;max-width:360px;text-align:left}
+    .file-pill .pdf{flex:0 0 auto;background:#e9f9bd;color:#365000;border-radius:10px;padding:10px 8px;font-size:.69rem;font-weight:800}
+    .file-meta{min-width:0;flex:1}
+    .file-meta strong,.file-meta span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .file-meta span{margin-top:3px}
+    label{display:flex;justify-content:space-between;gap:12px;font-weight:700;font-size:.82rem;margin-bottom:9px}
+    label small{font-weight:500;color:var(--muted)}
+    textarea{width:100%;min-height:142px;resize:vertical;border:1px solid #d5d9d3;border-radius:13px;padding:15px 16px;color:var(--ink);line-height:1.48;background:#fff;outline:none;transition:.2s;font-size:.86rem}
+    textarea:focus{border-color:#6e8e11;box-shadow:0 0 0 3px rgba(185,242,39,.22)}
+    .privacy{display:flex;gap:9px;align-items:flex-start;color:var(--muted);font-size:.75rem;line-height:1.45}
+    .privacy svg{width:15px;flex:none;margin-top:1px}
+    .actions{display:flex;gap:10px}
+    .primary{border:0;background:var(--ink);color:white;border-radius:12px;padding:14px 18px;font-weight:700;flex:1;display:flex;align-items:center;justify-content:center;gap:10px;transition:.2s}
+    .primary:hover{transform:translateY(-1px);background:#16342f}
+    .primary:disabled{opacity:.58;cursor:wait;transform:none}
+    .primary .arrow{color:var(--acid);font-size:1.2rem}
+    .demo{border:1px solid #d2d7d0;background:white;color:var(--ink);border-radius:12px;padding:14px 17px;font-weight:700}
+    .result-panel{background:var(--ink);color:#ecf2ee;display:flex;flex-direction:column;min-height:640px;box-shadow:0 26px 70px rgba(8,27,23,.18)}
+    .result-panel .panel-head{border-color:rgba(255,255,255,.12)}
+    .result-panel .step{color:#96a39c}
+    .output-wrap{padding:26px;display:flex;flex-direction:column;flex:1;min-height:0}
+    .empty{margin:auto;text-align:center;max-width:330px;color:#aab6b0}
+    .empty .glyph{font-family:"Instrument Serif",serif;color:var(--acid);font-size:4.2rem;line-height:1;margin-bottom:12px}
+    .empty h3{color:white;font-size:1rem;margin:0 0 9px}
+    .empty p{font-size:.82rem;line-height:1.55;margin:0}
+    .processing{display:none;margin:auto;width:min(100%,390px)}
+    .processing h3{font-family:"Instrument Serif",serif;font-size:2.1rem;font-weight:400;margin:0 0 9px;color:white}
+    .processing p{color:#aab6b0;font-size:.83rem;margin:0 0 25px}
+    .progress{height:4px;border-radius:10px;background:rgba(255,255,255,.13);overflow:hidden;margin-bottom:20px}
+    .progress i{display:block;height:100%;width:15%;background:var(--acid);transition:width .45s ease}
+    .stage{display:flex;align-items:center;gap:10px;color:#dce5e0;font-size:.81rem}
+    .spinner{width:15px;height:15px;border:2px solid #54645d;border-top-color:var(--acid);border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .results{display:none;flex-direction:column;min-height:0;flex:1}
+    .result-summary{display:flex;gap:11px;margin-bottom:18px;flex-wrap:wrap}
+    .chip{border:1px solid rgba(255,255,255,.15);border-radius:100px;padding:7px 11px;font-size:.7rem;color:#bdc8c2}
+    .chip b{color:var(--acid);margin-right:4px}
+    .output{background:#132925;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:18px;overflow:auto;min-height:320px;flex:1;font-family:"DM Sans",sans-serif;font-size:.82rem;line-height:1.66;color:#e4ebe7;white-space:pre-wrap}
+    .result-actions{display:flex;justify-content:space-between;gap:10px;margin-top:16px}
+    .copy,.download{border:1px solid rgba(255,255,255,.18);color:white;background:transparent;border-radius:10px;padding:10px 13px;font-size:.76rem;font-weight:700}
+    .copy{background:var(--acid);color:var(--ink);border-color:var(--acid)}
+    .error{display:none;color:#ffd5ce;background:rgba(168,52,40,.18);border:1px solid rgba(255,146,128,.25);padding:13px 15px;border-radius:11px;font-size:.8rem;margin-bottom:14px}
+    footer{display:flex;justify-content:space-between;gap:24px;padding:24px 2px 0;color:#7a8580;font-size:.72rem}
+    @media(max-width:900px){.shell{padding:0 18px 24px}.intro{grid-template-columns:1fr;margin-bottom:25px}.intro p{max-width:650px}.workspace{grid-template-columns:1fr}.result-panel{min-height:560px}main{padding-top:34px}header{height:68px}}
+    @media(max-width:560px){h1{font-size:3rem}.intro{gap:20px}.panel{border-radius:17px}.form,.output-wrap{padding:16px}.actions{flex-direction:column}.upload{min-height:164px}.result-panel{min-height:520px}footer{flex-direction:column}.status span{display:none}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="brand"><span class="brand-mark">E</span>Estructura</div>
+      <div class="status"><i></i><span>Procesamiento confidencial</span></div>
+    </header>
+    <main>
+      <section class="intro">
+        <div>
+          <div class="eyebrow">Asistente de documentación jurídica</div>
+          <h1>Del documento al texto, <em>sin transcribir.</em></h1>
+        </div>
+        <p>Adjuntá una liquidación y enseñale el formato con un solo ejemplo. El sistema replica la estructura para cada partida, dominio o concepto detectado.</p>
+      </section>
+      <section class="workspace">
+        <article class="panel">
+          <div class="panel-head"><h2>Preparar documento</h2><span class="step">Entrada</span></div>
+          <div class="form">
+            <div class="upload" id="dropzone">
+              <input id="file" type="file" accept="application/pdf,.pdf" aria-label="Adjuntar documento PDF">
+              <div class="upload-default" id="uploadDefault">
+                <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg></div>
+                <strong>Adjuntá tu documento</strong>
+                <span>Arrastrá un PDF o hacé clic para buscarlo · máx. 25 MB</span>
+              </div>
+              <div class="file-pill" id="filePill"><span class="pdf">PDF</span><div class="file-meta"><strong id="fileName"></strong><span id="fileSize"></span></div></div>
+            </div>
+            <div>
+              <label for="example">Ejemplo del primer caso <small>Esto define la estructura</small></label>
+              <textarea id="example" placeholder="Ej.: Partida N° 4132017-03. deuda en sede administrativa...">Partida N° 4132017-03. deuda en sede administrativa -periodos 06 a 12/2023, 01 a 12/2024, 01 a 10/2025, por un total de $19.474.951,25 ($13.137.571,77 privilegio general y especial y $6.337.379,48 quirografario)</textarea>
+            </div>
+            <div class="privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>El documento se procesa para esta tarea y no se usa para entrenar modelos.</span></div>
+            <div class="actions"><button class="demo" id="demoBtn" type="button">Ver ejemplo</button><button class="primary" id="runBtn" type="button">Generar textos <span class="arrow">→</span></button></div>
+          </div>
+        </article>
+        <article class="panel result-panel">
+          <div class="panel-head"><h2>Resultado</h2><span class="step" id="resultState">Vista previa</span></div>
+          <div class="output-wrap">
+            <div class="empty" id="empty"><div class="glyph">§</div><h3>El texto va a aparecer acá</h3><p>Revisá el documento y el ejemplo. Después podés copiar todo o descargarlo como archivo de texto.</p></div>
+            <div class="processing" id="processing"><h3>Analizando el documento</h3><p id="processNote">Leyendo la estructura y reconociendo las variables…</p><div class="progress"><i id="bar"></i></div><div class="stage"><span class="spinner"></span><span id="stageText">Extrayendo contenido</span></div></div>
+            <div class="results" id="results"><div class="error" id="error"></div><div class="result-summary"><span class="chip"><b id="count">6</b> casos detectados</span><span class="chip"><b id="kind">Partida</b> tipo de variable</span><span class="chip"><b>✓</b> importes verificados</span></div><div class="output" id="output"></div><div class="result-actions"><button class="download" id="downloadBtn">Descargar .txt</button><button class="copy" id="copyBtn">Copiar todo</button></div></div>
+          </div>
+        </article>
+      </section>
+    </main>
+    <footer><span>Revisá siempre el resultado antes de incorporarlo a un escrito.</span><span>Estructura · Herramienta de asistencia, no asesoramiento legal.</span></footer>
+  </div>
+  <script>
+    const sample = `Partida N° 4132017-03. deuda en sede administrativa -periodos 06 a 12/2023, 01 a 12/2024, 01 a 10/2025, por un total de $19.474.951,25 ($13.137.571,77 privilegio general y especial y $6.337.379,48 quirografario)\n\nPartida N° 4132026-02. deuda en sede administrativa -periodos 06 a 12/2023, 01 a 12/2024, 01 a 10/2025, por un total de $2.933.751,38 ($1.967.253,77 privilegio general y especial y $966.497,61 quirografario)\n\nPartida N° 4132041-01. deuda en sede administrativa -periodos 06 a 09/2023, 01 a 10/2025, por un total de $1.004.183,98 ($776.982,30 privilegio general y especial y $227.201,68 quirografario)\n\nPartida N° 4132051-07. deuda en sede administrativa -periodos 12/2023, 01 a 12/2024, 01 a 10/2025, por un total de $1.673.977,27 ($1.179.956,60 privilegio general y especial y $494.020,67 quirografario)\n\nPartida N° 4132060-06. deuda en sede administrativa -periodos 04 a 07/2024, por un total de $228.200,51 ($121.694,71 privilegio general y especial y $106.505,80 quirografario)\n\nPartida N° 4132071-08. deuda en sede administrativa -periodos 06 a 09/2023, por un total de $179.371,72 ($67.890,87 privilegio general y especial y $111.480,85 quirografario)`;
+    const el = id => document.getElementById(id);
+    const fileInput=el('file'), drop=el('dropzone'), run=el('runBtn');
+    function setFile(file){
+      if(!file) return;
+      if(file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) return alert('Adjuntá un archivo PDF.');
+      if(file.size > 25*1024*1024) return alert('El archivo supera el máximo de 25 MB.');
+      el('uploadDefault').style.display='none'; el('filePill').style.display='flex'; el('fileName').textContent=file.name; el('fileSize').textContent=(file.size/1024/1024).toFixed(1)+' MB · listo para procesar';
+    }
+    fileInput.addEventListener('change',e=>setFile(e.target.files[0]));
+    ['dragenter','dragover'].forEach(n=>drop.addEventListener(n,e=>{e.preventDefault();drop.classList.add('drag')}));
+    ['dragleave','drop'].forEach(n=>drop.addEventListener(n,e=>{e.preventDefault();drop.classList.remove('drag')}));
+    drop.addEventListener('drop',e=>{const f=e.dataTransfer.files[0]; if(f){const dt=new DataTransfer();dt.items.add(f);fileInput.files=dt.files;setFile(f)}});
+    function showResult(text, demo=false){
+      el('processing').style.display='none'; el('empty').style.display='none'; el('results').style.display='flex'; el('output').textContent=text;
+      const label=(el('example').value.match(/^\s*([\p{L}]+)/u)||[])[1]||'Variable'; el('kind').textContent=label; el('count').textContent=text.split(/\n\s*\n/).filter(Boolean).length; el('resultState').textContent=demo?'Ejemplo de salida':'Completado'; run.disabled=false;
+    }
+    function animate(demo){
+      el('empty').style.display='none';el('results').style.display='none';el('processing').style.display='block';el('resultState').textContent='Procesando';run.disabled=true;
+      const stages=[['Extrayendo contenido',24],['Reconociendo partidas e importes',57],['Replicando la estructura del ejemplo',82],['Comprobando consistencia',100]]; let i=0;
+      const timer=setInterval(()=>{el('stageText').textContent=stages[i][0];el('bar').style.width=stages[i][1]+'%';i++;if(i===stages.length){clearInterval(timer);setTimeout(()=>showResult(sample,demo),420)}},440);
+    }
+    el('demoBtn').addEventListener('click',()=>animate(true));
+    run.addEventListener('click',()=>{if(!fileInput.files.length){drop.style.borderColor='#a83428';setTimeout(()=>drop.style.borderColor='',1200);return alert('Primero adjuntá el documento PDF.')}if(!el('example').value.trim())return alert('Escribí un ejemplo del primer caso.');animate(false)});
+    el('copyBtn').addEventListener('click',async()=>{await navigator.clipboard.writeText(el('output').textContent);const b=el('copyBtn');b.textContent='Copiado';setTimeout(()=>b.textContent='Copiar todo',1400)});
+    el('downloadBtn').addEventListener('click',()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([el('output').textContent],{type:'text/plain;charset=utf-8'}));a.download='deuda-estructurada.txt';a.click();URL.revokeObjectURL(a.href)});
+  </script>
+</body>
+</html>
