@@ -22,6 +22,18 @@ test('adapta la misma estructura a un dominio', () => {
   assert.match(result.text, /periodos 09\/2025/);
 });
 
+test('genera una lista numerada de dominios aun sin ejemplo escrito', () => {
+  const pages = [
+    { number: 1, text: 'Página: 1 2\nDOMINIO OCM515 -31\n2021 - 005 100,00 20/10/2021 50,00 150,00\nTOTAL: 100,00 50,00 150,00' },
+    { number: 2, text: 'Página: 2 2\nDOMINIO OCM515 -31\nTexto legal de continuación' },
+    { number: 3, text: 'Página: 1 1\nDOMINIO OCM516 -41\n2021 - 006 100,00 20/12/2021 50,00 150,00\nTOTAL: 100,00 50,00 150,00' },
+  ];
+  const result = buildResult(pages, '');
+  assert.equal(result.count, 2);
+  assert.match(result.text, /^1- DOMINIO OCM515: cuotas 5\/2021/);
+  assert.match(result.text, /\n2- DOMINIO OCM516: cuotas 6\/2021/);
+});
+
 test('admite identificadores con etiquetas de varias palabras', () => {
   const example = 'Cuenta corriente N° 100-A. deuda en sede administrativa -periodos 01/2025, por un total de $150,00 ($100,00 privilegio general y especial y $50,00 quirografario)';
   const pages = [{ number: 1, text: 'CUENTA CORRIENTE: 101-B\n2025 - 001 100,00 01/02/2025 50,00 150,00\nTOTAL: 100,00 50,00 150,00' }];

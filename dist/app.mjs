@@ -155,7 +155,7 @@ function showResult(extraction, example) {
   $('ocrCount').style.display = 'inline-block';
   const notice = $('notice');
   const messages = [];
-  if (!example.trim()) messages.push('Se extrajo el texto. Escribí un ejemplo para intentar redactar los casos con su estructura.');
+  if (!example.trim() && !activeResult.generated) messages.push('Se extrajo el texto. Escribí un ejemplo para intentar redactar los casos con su estructura.');
   else if (!activeResult.generated) messages.push('No se identificó una estructura verificable. Se muestra el texto extraído para que puedas revisarlo.');
   else if (activeResult.count < activeResult.detected) messages.push(`Se redactaron ${activeResult.count} de ${activeResult.detected} casos detectados. Descargá el texto extraído para revisar los restantes.`);
   if (activeResult.warnings.length) {
