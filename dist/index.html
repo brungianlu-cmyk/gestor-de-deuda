@@ -3,165 +3,46 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Transformá planillas y liquidaciones de deuda en texto jurídico estructurado.">
-  <title>Estructura — Documentos de deuda</title>
+  <meta name="description" content="Convertí documentos de deuda en texto jurídico estructurado.">
+  <title>Estructura — Documentos jurídicos</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230c1f1c'/%3E%3Cpath d='M18 18h29v8H27v8h16v8H27v4h21v8H18z' fill='%23b9f227'/%3E%3C/svg%3E">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23102330'/%3E%3Cpath d='M18 18h29v8H27v8h16v8H27v4h21v8H18z' fill='%23d7f26a'/%3E%3C/svg%3E">
   <style>
-    :root{--ink:#0c1f1c;--paper:#f4f4ee;--acid:#b9f227;--muted:#65716c;--line:#d8dcd4;--white:#fff;--danger:#a83428;--shadow:0 26px 70px rgba(10,31,27,.10)}
-    *{box-sizing:border-box}
-    html{font-size:16px}
-    body{margin:0;background:var(--paper);color:var(--ink);font-family:"DM Sans",sans-serif;min-height:100vh}
-    button,input,textarea{font:inherit}
-    button{cursor:pointer}
-    .shell{max-width:1440px;margin:auto;min-height:100vh;padding:0 34px 34px}
-    header{height:82px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
-    .brand{display:flex;align-items:center;gap:12px;font-weight:700;letter-spacing:-.03em;font-size:1.16rem}
-    .brand-mark{width:29px;height:29px;border-radius:8px;background:var(--ink);display:grid;place-items:center;color:var(--acid);font-size:.85rem}
-    .status{display:flex;gap:9px;align-items:center;color:var(--muted);font-size:.84rem;font-weight:500}
-    .status i{width:7px;height:7px;border-radius:50%;background:var(--acid);box-shadow:0 0 0 4px rgba(185,242,39,.18)}
-    main{padding-top:48px}
-    .intro{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.52fr);gap:34px;align-items:end;margin-bottom:36px}
-    .eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:.7rem;font-weight:700;color:#52605a;margin-bottom:15px}
-    h1{font-family:"Instrument Serif",serif;font-size:clamp(2.8rem,5.2vw,5.6rem);font-weight:400;letter-spacing:-.045em;line-height:.89;margin:0;max-width:870px}
-    h1 em{color:#587000;font-weight:400}
-    .intro p{font-size:1rem;line-height:1.65;color:var(--muted);margin:0 0 5px;max-width:420px}
-    .workspace{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:18px;align-items:stretch}
-    .panel{background:var(--white);border:1px solid rgba(12,31,28,.08);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
-    .panel-head{height:66px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e7e9e4}
-    .panel-head h2{font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;margin:0}
-    .step{color:#7d8782;font-size:.75rem;font-weight:600}
-    .form{padding:22px;display:flex;flex-direction:column;gap:20px}
-    .upload{position:relative;border:1.5px dashed #aeb6b0;border-radius:16px;min-height:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px;transition:.2s ease;background:#fbfcf9}
-    .upload.drag,.upload:hover{border-color:#789b12;background:#f7fce9}
-    .upload input{position:absolute;inset:0;opacity:0;cursor:pointer}
-    .upload-icon{width:44px;height:44px;border-radius:13px;background:var(--ink);color:var(--acid);display:grid;place-items:center;margin-bottom:14px}
-    .upload-icon svg{width:21px}
-    .upload strong{font-size:1rem;margin-bottom:6px}
-    .upload span{font-size:.8rem;color:var(--muted)}
-    .file-pill{display:none;align-items:center;gap:11px;width:100%;max-width:360px;text-align:left}
-    .file-pill .pdf{flex:0 0 auto;background:#e9f9bd;color:#365000;border-radius:10px;padding:10px 8px;font-size:.69rem;font-weight:800}
-    .file-meta{min-width:0;flex:1}
-    .file-meta strong,.file-meta span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .file-meta span{margin-top:3px}
-    label{display:flex;justify-content:space-between;gap:12px;font-weight:700;font-size:.82rem;margin-bottom:9px}
-    label small{font-weight:500;color:var(--muted)}
-    textarea{width:100%;min-height:142px;resize:vertical;border:1px solid #d5d9d3;border-radius:13px;padding:15px 16px;color:var(--ink);line-height:1.48;background:#fff;outline:none;transition:.2s;font-size:.86rem}
-    textarea:focus{border-color:#6e8e11;box-shadow:0 0 0 3px rgba(185,242,39,.22)}
-    .privacy{display:flex;gap:9px;align-items:flex-start;color:var(--muted);font-size:.75rem;line-height:1.45}
-    .privacy svg{width:15px;flex:none;margin-top:1px}
-    .actions{display:flex;gap:10px}
-    .primary{border:0;background:var(--ink);color:white;border-radius:12px;padding:14px 18px;font-weight:700;flex:1;display:flex;align-items:center;justify-content:center;gap:10px;transition:.2s}
-    .primary:hover{transform:translateY(-1px);background:#16342f}
-    .primary:disabled{opacity:.58;cursor:wait;transform:none}
-    .primary .arrow{color:var(--acid);font-size:1.2rem}
-    .demo{border:1px solid #d2d7d0;background:white;color:var(--ink);border-radius:12px;padding:14px 17px;font-weight:700}
-    .result-panel{background:var(--ink);color:#ecf2ee;display:flex;flex-direction:column;min-height:640px;box-shadow:0 26px 70px rgba(8,27,23,.18)}
-    .result-panel .panel-head{border-color:rgba(255,255,255,.12)}
-    .result-panel .step{color:#96a39c}
-    .output-wrap{padding:26px;display:flex;flex-direction:column;flex:1;min-height:0}
-    .empty{margin:auto;text-align:center;max-width:330px;color:#aab6b0}
-    .empty .glyph{font-family:"Instrument Serif",serif;color:var(--acid);font-size:4.2rem;line-height:1;margin-bottom:12px}
-    .empty h3{color:white;font-size:1rem;margin:0 0 9px}
-    .empty p{font-size:.82rem;line-height:1.55;margin:0}
-    .processing{display:none;margin:auto;width:min(100%,390px)}
-    .processing h3{font-family:"Instrument Serif",serif;font-size:2.1rem;font-weight:400;margin:0 0 9px;color:white}
-    .processing p{color:#aab6b0;font-size:.83rem;margin:0 0 25px}
-    .progress{height:4px;border-radius:10px;background:rgba(255,255,255,.13);overflow:hidden;margin-bottom:20px}
-    .progress i{display:block;height:100%;width:15%;background:var(--acid);transition:width .45s ease}
-    .stage{display:flex;align-items:center;gap:10px;color:#dce5e0;font-size:.81rem}
-    .spinner{width:15px;height:15px;border:2px solid #54645d;border-top-color:var(--acid);border-radius:50%;animation:spin .7s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .results{display:none;flex-direction:column;min-height:0;flex:1}
-    .result-summary{display:flex;gap:11px;margin-bottom:18px;flex-wrap:wrap}
-    .chip{border:1px solid rgba(255,255,255,.15);border-radius:100px;padding:7px 11px;font-size:.7rem;color:#bdc8c2}
-    .chip b{color:var(--acid);margin-right:4px}
-    .output{background:#132925;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:18px;overflow:auto;min-height:320px;flex:1;font-family:"DM Sans",sans-serif;font-size:.82rem;line-height:1.66;color:#e4ebe7;white-space:pre-wrap}
-    .result-actions{display:flex;justify-content:space-between;gap:10px;margin-top:16px}
-    .copy,.download{border:1px solid rgba(255,255,255,.18);color:white;background:transparent;border-radius:10px;padding:10px 13px;font-size:.76rem;font-weight:700}
-    .copy{background:var(--acid);color:var(--ink);border-color:var(--acid)}
-    .error{display:none;color:#ffd5ce;background:rgba(168,52,40,.18);border:1px solid rgba(255,146,128,.25);padding:13px 15px;border-radius:11px;font-size:.8rem;margin-bottom:14px}
-    footer{display:flex;justify-content:space-between;gap:24px;padding:24px 2px 0;color:#7a8580;font-size:.72rem}
-    @media(max-width:900px){.shell{padding:0 18px 24px}.intro{grid-template-columns:1fr;margin-bottom:25px}.intro p{max-width:650px}.workspace{grid-template-columns:1fr}.result-panel{min-height:560px}main{padding-top:34px}header{height:68px}}
-    @media(max-width:560px){h1{font-size:3rem}.intro{gap:20px}.panel{border-radius:17px}.form,.output-wrap{padding:16px}.actions{flex-direction:column}.upload{min-height:164px}.result-panel{min-height:520px}footer{flex-direction:column}.status span{display:none}}
+    :root{--night:#101d2a;--blue:#304fd4;--blue-dark:#243da9;--paper:#f5f4ee;--white:#fff;--ink:#14232d;--muted:#68767d;--line:#d7dcd9;--lime:#d7f26a}
+    *{box-sizing:border-box} html{font-size:16px} body{margin:0;min-height:100vh;background:var(--night);color:var(--ink);font-family:"Manrope",sans-serif;-webkit-font-smoothing:antialiased} button,input,textarea{font:inherit} button{cursor:pointer}
+    .page{width:min(100% - 36px,1040px);margin:0 auto;padding:26px 0 54px}
+    header{display:flex;align-items:center;justify-content:space-between;color:white;margin-bottom:30px}.brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:-.02em}.mark{width:34px;height:34px;border-radius:10px;background:var(--lime);color:var(--night);display:grid;place-items:center;font-family:"Newsreader",serif;font-size:1.2rem;font-weight:500}.mode{display:flex;align-items:center;gap:8px;color:#b5c1c8;font-size:.75rem;font-weight:600}.mode::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--lime)}
+    .intro{color:white;text-align:center;margin:0 auto 28px;max-width:690px}.intro h1{font-family:"Newsreader",serif;font-weight:400;font-size:clamp(2.4rem,5vw,4rem);line-height:.98;letter-spacing:-.035em;margin:0 0 12px}.intro p{color:#b9c4ca;line-height:1.6;margin:0;font-size:.92rem}.stack{display:flex;flex-direction:column;gap:14px}
+    .upload{position:relative;min-height:245px;background:var(--paper);border:1px solid rgba(255,255,255,.08);border-radius:26px;overflow:hidden;box-shadow:0 20px 54px rgba(0,0,0,.2);transition:transform .2s,border-color .2s,background .2s}.upload:hover,.upload.drag{transform:translateY(-2px);background:#fbfaf5;border-color:var(--lime)}.upload input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2}.upload-content{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px;pointer-events:none}.upload-icon{width:52px;height:52px;border-radius:16px;background:var(--night);color:var(--lime);display:grid;place-items:center;font-size:1.55rem;margin:0 auto 17px}.upload strong{font-size:1.05rem;letter-spacing:-.02em}.upload span{font-size:.78rem;color:var(--muted);margin-top:7px}.file-ready{display:none;align-items:center;gap:16px;text-align:left;max-width:520px;width:100%;background:white;border:1px solid var(--line);border-radius:16px;padding:15px 18px}.pdf-badge{width:42px;height:46px;border-radius:10px;background:#eef1ff;color:var(--blue);display:grid;place-items:center;font-family:"DM Mono",monospace;font-size:.68rem;font-weight:500;flex:none}.file-copy{min-width:0;flex:1}.file-copy strong,.file-copy span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.file-copy span{margin-top:4px}.check{color:#4e6900;font-size:1.35rem}
+    .example-card{background:white;border-radius:20px;box-shadow:0 14px 42px rgba(0,0,0,.16);overflow:hidden;border:1px solid rgba(255,255,255,.12)}.example-top{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 0;gap:16px}.label{display:flex;align-items:center;gap:9px;font-size:.72rem;text-transform:uppercase;letter-spacing:.11em;font-weight:700;color:#536167}.label i{font-size:1.05rem;color:var(--blue)}.hint{font-size:.69rem;color:#879298}.example-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end;padding:10px 14px 14px 18px}textarea{border:0;outline:0;resize:none;width:100%;height:76px;min-height:76px;background:transparent;color:var(--ink);line-height:1.52;font-size:.86rem;padding:4px 2px;scrollbar-width:thin}textarea::placeholder{color:#99a2a5}.generate{border:0;border-radius:13px;background:var(--blue);color:white;font-weight:700;padding:13px 18px;display:flex;align-items:center;gap:9px;white-space:nowrap;min-height:47px;transition:background .2s,transform .2s}.generate:hover{background:var(--blue-dark);transform:translateY(-1px)}.generate:disabled{cursor:wait;opacity:.75;transform:none}
+    .result{background:#0b1116;border-radius:25px;min-height:325px;color:white;box-shadow:0 22px 56px rgba(0,0,0,.25);overflow:hidden;border:1px solid #24313a}.result-head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 20px;border-bottom:1px solid #26323a}.result-title{display:flex;align-items:center;gap:10px;font-size:.75rem;text-transform:uppercase;letter-spacing:.11em;font-weight:700;color:#b9c3c9}.result-title i{color:var(--lime);font-size:1.05rem}.result-actions{display:flex;gap:8px}.icon-btn{border:1px solid #35424b;background:#151e25;color:#e8edef;border-radius:10px;padding:8px 11px;display:flex;align-items:center;gap:7px;font-size:.73rem;font-weight:700;transition:border-color .2s,color .2s}.icon-btn:hover{border-color:var(--lime);color:var(--lime)}.result-body{min-height:253px;display:flex;align-items:center;justify-content:center;padding:24px}.empty{text-align:center;color:#71808a;max-width:400px}.empty i{display:block;font-size:1.9rem;color:#50616c;margin-bottom:11px}.empty strong{display:block;color:#9eabb3;font-size:.88rem;margin-bottom:6px}.empty p{font-size:.76rem;line-height:1.55;margin:0}.loading{display:none;width:min(100%,460px)}.loading-line{height:3px;background:#26323a;border-radius:100px;overflow:hidden;margin-bottom:15px}.loading-line span{display:block;width:18%;height:100%;background:var(--lime);transition:width .42s}.loading-copy{display:flex;align-items:center;gap:9px;color:#aeb9bf;font-size:.79rem}.loading-copy i{color:var(--lime);font-size:1rem}.output{display:none;width:100%;align-self:stretch;font-family:"DM Mono",monospace;color:#dce4e7;font-size:.75rem;line-height:1.72;white-space:pre-wrap;overflow:auto;max-height:310px;padding-right:5px}.notice{display:none;background:#2b211f;color:#f4c8bf;border:1px solid #5c3731;border-radius:10px;padding:10px 12px;margin-bottom:13px;font-family:"Manrope",sans-serif;font-size:.72rem;line-height:1.45}.meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;font-family:"Manrope",sans-serif}.meta span{border:1px solid #2e3b43;border-radius:100px;padding:6px 9px;color:#8e9aa2;font-size:.66rem}.meta b{color:var(--lime);font-weight:700}.foot{display:flex;justify-content:space-between;gap:18px;color:#77858d;font-size:.67rem;margin-top:17px;padding:0 4px}.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,18px);background:var(--lime);color:var(--night);border-radius:11px;padding:11px 16px;font-size:.76rem;font-weight:700;opacity:0;pointer-events:none;transition:.24s;box-shadow:0 12px 30px rgba(0,0,0,.25)}.toast.show{opacity:1;transform:translate(-50%,0)}
+    @media(max-width:700px){.page{width:min(100% - 24px,1040px);padding-top:18px}.intro{margin-bottom:22px}.intro h1{font-size:2.7rem}.upload{min-height:210px;border-radius:21px}.example-row{grid-template-columns:1fr;padding:8px 15px 15px}.generate{justify-content:center;width:100%}.hint{display:none}.result{min-height:350px;border-radius:21px}.result-head{padding:15px}.result-body{padding:19px}.foot{flex-direction:column;gap:5px}.mode span{display:none}.icon-btn span{display:none}.icon-btn{padding:9px 11px}}
   </style>
 </head>
 <body>
-  <div class="shell">
-    <header>
-      <div class="brand"><span class="brand-mark">E</span>Estructura</div>
-      <div class="status"><i></i><span>Procesamiento confidencial</span></div>
-    </header>
-    <main>
-      <section class="intro">
-        <div>
-          <div class="eyebrow">Asistente de documentación jurídica</div>
-          <h1>Del documento al texto, <em>sin transcribir.</em></h1>
-        </div>
-        <p>Adjuntá una liquidación y enseñale el formato con un solo ejemplo. El sistema replica la estructura para cada partida, dominio o concepto detectado.</p>
-      </section>
-      <section class="workspace">
-        <article class="panel">
-          <div class="panel-head"><h2>Preparar documento</h2><span class="step">Entrada</span></div>
-          <div class="form">
-            <div class="upload" id="dropzone">
-              <input id="file" type="file" accept="application/pdf,.pdf" aria-label="Adjuntar documento PDF">
-              <div class="upload-default" id="uploadDefault">
-                <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg></div>
-                <strong>Adjuntá tu documento</strong>
-                <span>Arrastrá un PDF o hacé clic para buscarlo · máx. 25 MB</span>
-              </div>
-              <div class="file-pill" id="filePill"><span class="pdf">PDF</span><div class="file-meta"><strong id="fileName"></strong><span id="fileSize"></span></div></div>
-            </div>
-            <div>
-              <label for="example">Ejemplo del primer caso <small>Esto define la estructura</small></label>
-              <textarea id="example" placeholder="Ej.: Partida N° 4132017-03. deuda en sede administrativa...">Partida N° 4132017-03. deuda en sede administrativa -periodos 06 a 12/2023, 01 a 12/2024, 01 a 10/2025, por un total de $19.474.951,25 ($13.137.571,77 privilegio general y especial y $6.337.379,48 quirografario)</textarea>
-            </div>
-            <div class="privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>El documento se procesa para esta tarea y no se usa para entrenar modelos.</span></div>
-            <div class="actions"><button class="demo" id="demoBtn" type="button">Ver ejemplo</button><button class="primary" id="runBtn" type="button">Generar textos <span class="arrow">→</span></button></div>
-          </div>
-        </article>
-        <article class="panel result-panel">
-          <div class="panel-head"><h2>Resultado</h2><span class="step" id="resultState">Vista previa</span></div>
-          <div class="output-wrap">
-            <div class="empty" id="empty"><div class="glyph">§</div><h3>El texto va a aparecer acá</h3><p>Revisá el documento y el ejemplo. Después podés copiar todo o descargarlo como archivo de texto.</p></div>
-            <div class="processing" id="processing"><h3>Analizando el documento</h3><p id="processNote">Leyendo la estructura y reconociendo las variables…</p><div class="progress"><i id="bar"></i></div><div class="stage"><span class="spinner"></span><span id="stageText">Extrayendo contenido</span></div></div>
-            <div class="results" id="results"><div class="error" id="error"></div><div class="result-summary"><span class="chip"><b id="count">6</b> casos detectados</span><span class="chip"><b id="kind">Partida</b> tipo de variable</span><span class="chip"><b>✓</b> importes verificados</span></div><div class="output" id="output"></div><div class="result-actions"><button class="download" id="downloadBtn">Descargar .txt</button><button class="copy" id="copyBtn">Copiar todo</button></div></div>
-          </div>
-        </article>
-      </section>
+  <div class="page">
+    <header><div class="brand"><span class="mark">E</span><span>Estructura</span></div><div class="mode"><span>Prototipo privado</span></div></header>
+    <section class="intro"><h1>Convertí deuda en texto jurídico.</h1><p>Subí el documento, mostrá cómo debe quedar el primer caso y obtené el resto con la misma estructura.</p></section>
+    <main class="stack">
+      <section class="upload" id="dropzone" aria-label="Adjuntar archivo PDF"><input id="file" type="file" accept="application/pdf,.pdf"><div class="upload-content"><div id="uploadDefault"><div class="upload-icon"><i class="ph ph-upload-simple" aria-hidden="true"></i></div><strong>Adjuntá tu documento</strong><span>Arrastrá un PDF o hacé clic para buscarlo · hasta 25 MB</span></div><div class="file-ready" id="fileReady"><div class="pdf-badge">PDF</div><div class="file-copy"><strong id="fileName"></strong><span id="fileSize"></span></div><i class="ph ph-check-circle check" aria-hidden="true"></i></div></div></section>
+      <section class="example-card"><div class="example-top"><div class="label"><i class="ph ph-quotes"></i><span>Texto de ejemplo</span></div><span class="hint">Usá el primer caso del documento</span></div><div class="example-row"><textarea id="example" aria-label="Ejemplo del primer caso" placeholder="Ej.: Partida N° 4132017-03. deuda en sede administrativa...">Partida N° 4132017-03. deuda en sede administrativa -periodos 06 a 12/2023, 01 a 12/2024, 01 a 10/2025, por un total de $19.474.951,25 ($13.137.571,77 privilegio general y especial y $6.337.379,48 quirografario)</textarea><button class="generate" id="runBtn" type="button"><span>Generar texto</span><i class="ph ph-arrow-right"></i></button></div></section>
+      <section class="result"><div class="result-head"><div class="result-title"><i class="ph ph-text-align-left"></i><span>Resultado</span></div><div class="result-actions"><button class="icon-btn" id="downloadBtn" type="button" aria-label="Descargar resultado"><i class="ph ph-download-simple"></i><span>Descargar</span></button><button class="icon-btn" id="copyBtn" type="button" aria-label="Copiar resultado"><i class="ph ph-copy"></i><span>Copiar</span></button></div></div><div class="result-body"><div class="empty" id="empty"><i class="ph ph-file-text"></i><strong>El texto generado va a aparecer acá</strong><p>Podrás revisarlo, copiarlo completo o descargarlo como archivo .txt.</p></div><div class="loading" id="loading"><div class="loading-line"><span id="progress"></span></div><div class="loading-copy"><i class="ph ph-circle-notch"></i><span id="stage">Leyendo el documento…</span></div></div><div class="output" id="output"><div class="notice" id="notice"></div><div class="meta"><span><b id="count">0</b> casos detectados</span><span>Variable: <b id="kind">Partida</b></span></div><div id="resultText"></div></div></div></section>
     </main>
-    <footer><span>Revisá siempre el resultado antes de incorporarlo a un escrito.</span><span>Estructura · Herramienta de asistencia, no asesoramiento legal.</span></footer>
+    <div class="foot"><span>Revisá siempre el resultado antes de incorporarlo a un escrito.</span><span>Asistencia documental · no reemplaza criterio profesional.</span></div>
   </div>
+  <div class="toast" id="toast">Texto copiado</div>
   <script>
-    const sample = `Partida N° 4132017-03. deuda en sede administrativa -periodos 06 a 12/2023, 01 a 12/2024, 01 a 10/2025, por un total de $19.474.951,25 ($13.137.571,77 privilegio general y especial y $6.337.379,48 quirografario)\n\nPartida N° 4132026-02. deuda en sede administrativa -periodos 06 a 12/2023, 01 a 12/2024, 01 a 10/2025, por un total de $2.933.751,38 ($1.967.253,77 privilegio general y especial y $966.497,61 quirografario)\n\nPartida N° 4132041-01. deuda en sede administrativa -periodos 06 a 09/2023, 01 a 10/2025, por un total de $1.004.183,98 ($776.982,30 privilegio general y especial y $227.201,68 quirografario)\n\nPartida N° 4132051-07. deuda en sede administrativa -periodos 12/2023, 01 a 12/2024, 01 a 10/2025, por un total de $1.673.977,27 ($1.179.956,60 privilegio general y especial y $494.020,67 quirografario)\n\nPartida N° 4132060-06. deuda en sede administrativa -periodos 04 a 07/2024, por un total de $228.200,51 ($121.694,71 privilegio general y especial y $106.505,80 quirografario)\n\nPartida N° 4132071-08. deuda en sede administrativa -periodos 06 a 09/2023, por un total de $179.371,72 ($67.890,87 privilegio general y especial y $111.480,85 quirografario)`;
-    const el = id => document.getElementById(id);
-    const fileInput=el('file'), drop=el('dropzone'), run=el('runBtn');
-    function setFile(file){
-      if(!file) return;
-      if(file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) return alert('Adjuntá un archivo PDF.');
-      if(file.size > 25*1024*1024) return alert('El archivo supera el máximo de 25 MB.');
-      el('uploadDefault').style.display='none'; el('filePill').style.display='flex'; el('fileName').textContent=file.name; el('fileSize').textContent=(file.size/1024/1024).toFixed(1)+' MB · listo para procesar';
-    }
-    fileInput.addEventListener('change',e=>setFile(e.target.files[0]));
-    ['dragenter','dragover'].forEach(n=>drop.addEventListener(n,e=>{e.preventDefault();drop.classList.add('drag')}));
-    ['dragleave','drop'].forEach(n=>drop.addEventListener(n,e=>{e.preventDefault();drop.classList.remove('drag')}));
-    drop.addEventListener('drop',e=>{const f=e.dataTransfer.files[0]; if(f){const dt=new DataTransfer();dt.items.add(f);fileInput.files=dt.files;setFile(f)}});
-    function showResult(text, demo=false){
-      el('processing').style.display='none'; el('empty').style.display='none'; el('results').style.display='flex'; el('error').style.display='none'; el('output').textContent=text;
-      const label=(el('example').value.match(/^\s*([\p{L}]+)/u)||[])[1]||'Variable'; el('kind').textContent=label; el('count').textContent=text.split(/\n\s*\n/).filter(Boolean).length; el('resultState').textContent=demo?'Ejemplo de salida':'Completado'; run.disabled=false;
-    }
-    function animate(demo){
-      el('empty').style.display='none';el('results').style.display='none';el('processing').style.display='block';el('resultState').textContent='Procesando';run.disabled=true;
-      const stages=[['Extrayendo contenido',24],['Reconociendo partidas e importes',57],['Replicando la estructura del ejemplo',82],['Comprobando consistencia',100]]; let i=0;
-      const timer=setInterval(()=>{el('stageText').textContent=stages[i][0];el('bar').style.width=stages[i][1]+'%';i++;if(i===stages.length){clearInterval(timer);setTimeout(()=>{showResult(sample,true);if(!demo){el('error').style.display='block';el('error').textContent='Esta versión demuestra el formato de salida. Para procesar el PDF real falta conectar el servicio seguro de OCR + IA.';el('resultState').textContent='Integración pendiente'}},420)}},440);
-    }
-    el('demoBtn').addEventListener('click',()=>animate(true));
-    run.addEventListener('click',()=>{if(!fileInput.files.length){drop.style.borderColor='#a83428';setTimeout(()=>drop.style.borderColor='',1200);return alert('Primero adjuntá el documento PDF.')}if(!el('example').value.trim())return alert('Escribí un ejemplo del primer caso.');animate(false)});
-    el('copyBtn').addEventListener('click',async()=>{await navigator.clipboard.writeText(el('output').textContent);const b=el('copyBtn');b.textContent='Copiado';setTimeout(()=>b.textContent='Copiar todo',1400)});
-    el('downloadBtn').addEventListener('click',()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([el('output').textContent],{type:'text/plain;charset=utf-8'}));a.download='deuda-estructurada.txt';a.click();URL.revokeObjectURL(a.href)});
+    const sample=`Partida N° 4132017-03. deuda en sede administrativa -periodos 06 a 12/2023, 01 a 12/2024, 01 a 10/2025, por un total de $19.474.951,25 ($13.137.571,77 privilegio general y especial y $6.337.379,48 quirografario)\n\nPartida N° 4132026-02. deuda en sede administrativa -periodos 06 a 12/2023, 01 a 12/2024, 01 a 10/2025, por un total de $2.933.751,38 ($1.967.253,77 privilegio general y especial y $966.497,61 quirografario)\n\nPartida N° 4132041-01. deuda en sede administrativa -periodos 06 a 09/2023, 01 a 10/2025, por un total de $1.004.183,98 ($776.982,30 privilegio general y especial y $227.201,68 quirografario)`;
+    const $=id=>document.getElementById(id),file=$('file'),drop=$('dropzone'),button=$('runBtn');
+    function setFile(f){if(!f)return;if(f.type!=='application/pdf'&&!f.name.toLowerCase().endsWith('.pdf'))return alert('Adjuntá un archivo PDF.');if(f.size>25*1024*1024)return alert('El archivo supera el máximo de 25 MB.');$('uploadDefault').style.display='none';$('fileReady').style.display='flex';$('fileName').textContent=f.name;$('fileSize').textContent=(f.size/1024/1024).toFixed(1)+' MB · listo para procesar'}
+    file.addEventListener('change',e=>setFile(e.target.files[0]));['dragenter','dragover'].forEach(n=>drop.addEventListener(n,e=>{e.preventDefault();drop.classList.add('drag')}));['dragleave','drop'].forEach(n=>drop.addEventListener(n,e=>{e.preventDefault();drop.classList.remove('drag')}));drop.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f){const dt=new DataTransfer();dt.items.add(f);file.files=dt.files;setFile(f)}});
+    function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1500)}
+    function showResult(){$('loading').style.display='none';$('output').style.display='block';$('resultText').textContent=sample;$('count').textContent=sample.split(/\n\s*\n/).length;$('kind').textContent=($('example').value.match(/^\s*([\p{L}]+)/u)||[])[1]||'Variable';$('notice').style.display='block';$('notice').textContent='Vista demostrativa. La conexión segura de OCR + IA todavía debe activarse para procesar el contenido real del PDF.';button.disabled=false;button.innerHTML='<span>Generar texto</span><i class="ph ph-arrow-right"></i>'}
+    button.addEventListener('click',()=>{if(!file.files.length)return alert('Primero adjuntá el documento PDF.');if(!$('example').value.trim())return alert('Escribí un ejemplo del primer caso.');$('empty').style.display='none';$('output').style.display='none';$('loading').style.display='block';button.disabled=true;button.innerHTML='<span>Procesando</span><i class="ph ph-circle-notch"></i>';const s=[['Extrayendo el contenido…',22],['Reconociendo variables e importes…',55],['Replicando la estructura…',82],['Comprobando consistencia…',100]];let i=0;const timer=setInterval(()=>{$('stage').textContent=s[i][0];$('progress').style.width=s[i][1]+'%';i++;if(i===s.length){clearInterval(timer);setTimeout(showResult,350)}},430)});
+    $('copyBtn').addEventListener('click',async()=>{if(!$('resultText').textContent)return;await navigator.clipboard.writeText($('resultText').textContent);toast('Texto copiado')});$('downloadBtn').addEventListener('click',()=>{if(!$('resultText').textContent)return;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([$('resultText').textContent],{type:'text/plain;charset=utf-8'}));a.download='deuda-estructurada.txt';a.click();URL.revokeObjectURL(a.href);toast('Descarga iniciada')});
   </script>
 </body>
 </html>
