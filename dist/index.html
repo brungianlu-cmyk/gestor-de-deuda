@@ -150,13 +150,13 @@
     ['dragleave','drop'].forEach(n=>drop.addEventListener(n,e=>{e.preventDefault();drop.classList.remove('drag')}));
     drop.addEventListener('drop',e=>{const f=e.dataTransfer.files[0]; if(f){const dt=new DataTransfer();dt.items.add(f);fileInput.files=dt.files;setFile(f)}});
     function showResult(text, demo=false){
-      el('processing').style.display='none'; el('empty').style.display='none'; el('results').style.display='flex'; el('output').textContent=text;
+      el('processing').style.display='none'; el('empty').style.display='none'; el('results').style.display='flex'; el('error').style.display='none'; el('output').textContent=text;
       const label=(el('example').value.match(/^\s*([\p{L}]+)/u)||[])[1]||'Variable'; el('kind').textContent=label; el('count').textContent=text.split(/\n\s*\n/).filter(Boolean).length; el('resultState').textContent=demo?'Ejemplo de salida':'Completado'; run.disabled=false;
     }
     function animate(demo){
       el('empty').style.display='none';el('results').style.display='none';el('processing').style.display='block';el('resultState').textContent='Procesando';run.disabled=true;
       const stages=[['Extrayendo contenido',24],['Reconociendo partidas e importes',57],['Replicando la estructura del ejemplo',82],['Comprobando consistencia',100]]; let i=0;
-      const timer=setInterval(()=>{el('stageText').textContent=stages[i][0];el('bar').style.width=stages[i][1]+'%';i++;if(i===stages.length){clearInterval(timer);setTimeout(()=>showResult(sample,demo),420)}},440);
+      const timer=setInterval(()=>{el('stageText').textContent=stages[i][0];el('bar').style.width=stages[i][1]+'%';i++;if(i===stages.length){clearInterval(timer);setTimeout(()=>{showResult(sample,true);if(!demo){el('error').style.display='block';el('error').textContent='Esta versión demuestra el formato de salida. Para procesar el PDF real falta conectar el servicio seguro de OCR + IA.';el('resultState').textContent='Integración pendiente'}},420)}},440);
     }
     el('demoBtn').addEventListener('click',()=>animate(true));
     run.addEventListener('click',()=>{if(!fileInput.files.length){drop.style.borderColor='#a83428';setTimeout(()=>drop.style.borderColor='',1200);return alert('Primero adjuntá el documento PDF.')}if(!el('example').value.trim())return alert('Escribí un ejemplo del primer caso.');animate(false)});
