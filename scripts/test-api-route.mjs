@@ -1,4 +1,5 @@
-const response = await fetch('http://localhost:4181/api/generate', {
+const baseUrl = process.env.TEST_BASE_URL || 'http://127.0.0.1:4173';
+const response = await fetch(new URL('/api/generate', baseUrl), {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -17,4 +18,5 @@ const response = await fetch('http://localhost:4181/api/generate', {
   }),
 });
 const body = await response.json();
-console.log(JSON.stringify({ status: response.status, model: body.model || null, corrected: body.corrected || 0, items: body.items || null, error: body.error || null }));
+console.log(JSON.stringify({ status: response.status, model: body.model || null, corrected: body.corrected || 0, items: body.items || null, error: body.error || null, code: body.code || null }));
+if (!response.ok || !Array.isArray(body.items) || body.items.length !== 1) process.exitCode = 1;

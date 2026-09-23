@@ -80,7 +80,7 @@ function jsonError(message: string, status: number, code?: string) {
 export async function POST(request: Request) {
   const origin = request.headers.get("origin");
   if (origin && origin !== new URL(request.url).origin) return jsonError("Origen no permitido.", 403);
-  const apiKey = env.OPENAI_API_KEY;
+  const apiKey = env.OPENAI_API_KEY?.trim().replace(/^(['"])(.*)\1$/, "$2");
   if (!apiKey) return jsonError("La API aún no está configurada.", 503, "missing_key");
 
   let payload: Record<string, unknown>;
