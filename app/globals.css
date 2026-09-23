@@ -135,3 +135,10 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@media (max-width: 700px) {
+  html,
+  body {
+    background: #ffdb2e;
+  }
+}

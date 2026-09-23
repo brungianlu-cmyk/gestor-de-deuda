@@ -24,4 +24,4 @@ body{background:var(--paper);overflow-x:clip}
 .icon-btn svg{display:block;width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;shape-rendering:geometricPrecision}
 @media(max-width:1200px){.city-logo{top:-38px;width:100px}}
 @media(max-width:860px){.intro h1{white-space:normal}}
-@media(max-width:700px){.intro{margin-bottom:92px}.intro::before{top:-32px;bottom:-24px}.city-logo{position:static;display:block;width:120px;margin:0 auto 18px}.intro h1{font-size:2.25rem}.upload{min-height:245px}.result{min-height:340px}.result-head{padding:15px}.result-body{min-height:252px}}
+@media(max-width:700px){html{background:var(--yellow)}.page{padding-top:calc(32px + env(safe-area-inset-top))}.intro{margin-bottom:40px}.intro::before{top:calc(-32px - env(safe-area-inset-top));bottom:-24px}.city-logo{position:static;display:block;width:120px;margin:0 auto 18px}.intro h1{font-size:2.25rem}.upload{min-height:245px}.example-row textarea{height:132px;min-height:132px}.result{min-height:340px}.result-head{padding:15px}.result-body{min-height:252px}}

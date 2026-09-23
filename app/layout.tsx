@@ -1,13 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Estructura — Documentos jurídicos",
   description: "Transformá planillas de deuda en texto jurídico con OCR y asistencia de IA.",
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: "/favicon-ba.svg",
+    shortcut: "/favicon-ba.svg",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#ffdb2e",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

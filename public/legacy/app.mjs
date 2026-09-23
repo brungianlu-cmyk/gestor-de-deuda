@@ -9,9 +9,32 @@ const dropzone = $('dropzone');
 const runButton = $('runBtn');
 const exampleInput = $('example');
 
+function placeholderHeight() {
+  const measure = exampleInput.cloneNode();
+  measure.removeAttribute('id');
+  measure.setAttribute('aria-hidden', 'true');
+  measure.tabIndex = -1;
+  measure.value = exampleInput.placeholder;
+  Object.assign(measure.style, {
+    position: 'absolute',
+    visibility: 'hidden',
+    pointerEvents: 'none',
+    width: `${exampleInput.getBoundingClientRect().width}px`,
+    height: '0px',
+    minHeight: '0px',
+  });
+  exampleInput.parentElement.appendChild(measure);
+  const style = getComputedStyle(measure);
+  const height = measure.scrollHeight + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
+  measure.remove();
+  return height;
+}
+
 function resizeExample() {
-  exampleInput.style.height = '75px';
-  exampleInput.style.height = `${Math.max(75, exampleInput.scrollHeight)}px`;
+  const baseHeight = parseFloat(getComputedStyle(exampleInput).minHeight) || 75;
+  exampleInput.style.height = `${baseHeight}px`;
+  const contentHeight = exampleInput.value ? exampleInput.scrollHeight : placeholderHeight();
+  exampleInput.style.height = `${Math.max(baseHeight, contentHeight)}px`;
 }
 
 exampleInput.addEventListener('input', resizeExample);
