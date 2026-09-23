@@ -40,6 +40,8 @@ yarn-error.log*
 next-env.d.ts
 /dist/
 /.wrangler/
+/.wrangler-config/
+/worker-configuration.d.ts
 # Local Cloudflare and build state.
 /.agents/
 /.codex/

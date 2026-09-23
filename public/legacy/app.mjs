@@ -75,6 +75,32 @@ let cancelled = false;
 let ocrWorker = null;
 let aiController = null;
 
+async function historyFetch(path, options = {}) {
+  const response = await fetch(path, options);
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.error || 'No se pudo archivar el procesamiento.');
+  }
+  return response;
+}
+
+async function startHistoryRun(file) {
+  const response = await historyFetch('/api/history', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/pdf', 'X-File-Name': encodeURIComponent(file.name) },
+    body: file,
+  });
+  return (await response.json()).id;
+}
+
+async function finishHistoryRun(id, details) {
+  await historyFetch(`/api/history/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(details),
+  });
+}
+
 function showToast(message) {
   $('toast').textContent = message;
   $('toast').classList.add('show');
@@ -83,6 +109,7 @@ function showToast(message) {
 
 function chooseFile(file) {
   if (!file) return;
+  if (runButton.dataset.running === 'true') return showToast('Esperá a que termine el procesamiento');
   if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
     showToast('Adjuntá un archivo PDF');
     return;
@@ -206,13 +233,13 @@ async function extractPdf(file) {
   }
 }
 
-async function callAI(payload) {
+async function callAI(payload, runId, callIndex) {
   aiController = new AbortController();
   try {
     const response = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ ...payload, runId, callIndex }),
       signal: aiController.signal,
     });
     const body = await response.json();
@@ -223,7 +250,7 @@ async function callAI(payload) {
   }
 }
 
-async function enhanceWithAI(result, pages) {
+async function enhanceWithAI(result, pages, runId) {
   if (!result.usedExample) return result;
   const numbered = /^\s*\d+\s*[-.)]/.test(result.usedExample);
   if (result.items.length) {
@@ -231,10 +258,10 @@ async function enhanceWithAI(result, pages) {
     let corrected = 0;
     for (let offset = 0; offset < result.items.length; offset += 8) {
       if (cancelled) throw new Error('Procesamiento cancelado.');
-      $('stage').textContent = `GPT‑6 Luna · casos ${offset + 1} a ${Math.min(offset + 8, result.items.length)} de ${result.items.length}`;
+      $('stage').textContent = `Redactando casos ${offset + 1} a ${Math.min(offset + 8, result.items.length)} de ${result.items.length}`;
       $('progress').style.width = `${Math.round((offset / result.items.length) * 100)}%`;
       const records = result.items.slice(offset, offset + 8).map((item, index) => ({ ...item, ordinal: offset + index + 1 }));
-      const response = await callAI({ mode: 'records', example: result.usedExample, records });
+      const response = await callAI({ mode: 'records', example: result.usedExample, records }, runId, Math.floor(offset / 8) + 1);
       output.push(...response.items.map((item) => item.text));
       corrected += response.corrected || 0;
     }
@@ -250,9 +277,9 @@ async function enhanceWithAI(result, pages) {
   for (let index = 0; index < pages.length; index += 3) chunks.push(pages.slice(index, index + 3).map(({ number, text }) => ({ number, text: text.slice(0, 25000) })));
   for (let index = 0; index < chunks.length; index++) {
     if (cancelled) throw new Error('Procesamiento cancelado.');
-    $('stage').textContent = `GPT‑6 Luna · bloque ${index + 1} de ${chunks.length}`;
+    $('stage').textContent = `Redactando bloque ${index + 1} de ${chunks.length}`;
     $('progress').style.width = `${Math.round((index / chunks.length) * 100)}%`;
-    const response = await callAI({ mode: 'pages', example: result.usedExample, pages: chunks[index] });
+    const response = await callAI({ mode: 'pages', example: result.usedExample, pages: chunks[index] }, runId, index + 1);
     for (const item of response.items) if (!found.has(item.id)) found.set(item.id, item.text);
   }
   if (!found.size) throw new Error('La IA no identificó casos completos en este documento.');
@@ -274,11 +301,6 @@ function showResult(extraction, result, aiError = null) {
   $('output').style.display = 'block';
   $('resultText').textContent = activeResult.text;
   $('count').textContent = String(activeResult.count);
-  $('kind').textContent = activeResult.generated ? activeResult.label : 'Texto extraído';
-  $('ocrCount').textContent = `${extraction.direct} páginas con texto · ${extraction.recognized} con OCR`;
-  $('ocrCount').style.display = 'inline-block';
-  $('aiStatus').textContent = activeResult.aiUsed ? 'GPT‑6 Luna aplicado' : aiError ? 'IA no disponible' : 'Procesamiento local';
-  $('aiStatus').style.display = 'inline-block';
   const notice = $('notice');
   const messages = [];
   if (aiError) messages.push(`La IA no completó el proceso: ${aiError}. Se muestra el resultado local.`);
@@ -309,6 +331,7 @@ runButton.addEventListener('click', async () => {
     return;
   }
   if (!selectedFile) return showToast('Primero adjuntá un PDF');
+  const file = selectedFile;
   cancelled = false;
   activeResult = null;
   runButton.dataset.running = 'true';
@@ -317,23 +340,38 @@ runButton.addEventListener('click', async () => {
   $('output').style.display = 'none';
   $('loading').style.display = 'block';
   $('progress').style.width = '3%';
-  $('stage').textContent = 'Abriendo el PDF…';
+  $('stage').textContent = 'Guardando el PDF…';
+  let runId = null;
   try {
-    const extraction = await extractPdf(selectedFile);
+    runId = await startHistoryRun(file);
+    if (cancelled) throw new Error('Procesamiento cancelado.');
+    $('stage').textContent = 'Abriendo el PDF…';
+    const extraction = await extractPdf(file);
     if (cancelled) throw new Error('Procesamiento cancelado.');
     $('stage').textContent = 'Validando importes y redactando…';
     const result = buildResult(extraction.pages, $('example').value.trim());
     let aiError = null;
     if (result.usedExample) {
-      try { await enhanceWithAI(result, extraction.pages); }
+      try { await enhanceWithAI(result, extraction.pages, runId); }
       catch (error) {
         if (cancelled) throw error;
         aiError = error instanceof Error ? error.message : 'Error desconocido';
       }
     }
     if (cancelled) throw new Error('Procesamiento cancelado.');
+    await finishHistoryRun(runId, {
+      status: 'completed', resultText: result.text, caseCount: result.count,
+      aiUsed: Boolean(result.aiUsed), aiError,
+      warnings: [...extraction.warnings, ...result.warnings],
+    });
     showResult(extraction, result, aiError);
   } catch (error) {
+    if (runId) {
+      await finishHistoryRun(runId, {
+        status: cancelled ? 'cancelled' : 'failed',
+        error: error instanceof Error ? error.message : 'Error desconocido',
+      }).catch(() => undefined);
+    }
     $('loading').style.display = 'none';
     $('empty').style.display = 'block';
     $('empty').querySelector('strong').textContent = error.message || 'No se pudo procesar el documento.';
