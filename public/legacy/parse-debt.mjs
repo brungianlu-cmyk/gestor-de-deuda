@@ -206,9 +206,22 @@ export function buildResult(pages, example) {
   const { records, warning } = extractRecords(pages, selectedExample);
   const warnings = warning ? [warning] : [];
   const paragraphs = [];
+  const items = [];
   for (const record of records) {
     const text = renderFromExample(selectedExample, record, paragraphs.length + 1);
-    if (text) paragraphs.push(text);
+    if (text) {
+      paragraphs.push(text);
+      items.push({
+        id: record.id,
+        label: record.label,
+        periods: record.periods,
+        total: formatMoney(record.totals.total),
+        principal: formatMoney(record.totals.principal),
+        interest: formatMoney(record.totals.interest),
+        text,
+        pages: record.pages,
+      });
+    }
     else warnings.push(`${record.label} ${record.id}: no se pudo generar un resumen confiable.`);
     for (const item of record.warnings) warnings.push(`${record.label} ${record.id}: ${item}`);
   }
@@ -221,6 +234,8 @@ export function buildResult(pages, example) {
     detected: records.length,
     label: records[0]?.label || identifierFromExample(selectedExample)?.label || 'Variable',
     warnings,
+    items,
+    usedExample: selectedExample,
   };
 }
 
