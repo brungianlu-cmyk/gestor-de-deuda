@@ -41,6 +41,34 @@ exampleInput.addEventListener('input', resizeExample);
 window.addEventListener('resize', resizeExample);
 resizeExample();
 
+if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+  const pointer = document.createElement('span');
+  pointer.className = 'example-pointer';
+  pointer.setAttribute('aria-hidden', 'true');
+  pointer.innerHTML = '<svg viewBox="0 0 16 24" aria-hidden="true"><path d="M8 2v20M3 2h10M3 22h10" stroke="white" stroke-width="4"/><path d="M8 2v20M3 2h10M3 22h10" stroke="currentColor" stroke-width="2"/></svg>';
+  pointer.hidden = true;
+  document.body.appendChild(pointer);
+  exampleInput.classList.add('visible-pointer');
+
+  const hidePointer = () => { pointer.hidden = true; };
+  const showPointer = (event) => {
+    pointer.style.left = `${event.clientX}px`;
+    pointer.style.top = `${event.clientY}px`;
+    pointer.hidden = false;
+  };
+
+  document.addEventListener('pointermove', (event) => {
+    if (event.pointerType !== 'mouse') return;
+    if (event.target === exampleInput) showPointer(event);
+    else hidePointer();
+  });
+  exampleInput.addEventListener('pointerdown', (event) => {
+    if (event.pointerType === 'mouse') showPointer(event);
+  });
+  document.addEventListener('scroll', hidePointer, true);
+  window.addEventListener('blur', hidePointer);
+}
+
 let selectedFile = null;
 let activeResult = null;
 let cancelled = false;
