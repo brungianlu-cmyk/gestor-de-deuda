@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 236 128" role="img" aria-labelledby="title desc">
+  <title id="title">Documento y paisaje de Buenos Aires</title>
+  <desc id="desc">Ilustración de una hoja frente al Obelisco y edificios, en amarillo y azul.</desc>
+  <circle cx="124" cy="64" r="60" fill="#fff4bd"/>
+  <path d="M11 108h214" stroke="#303030" stroke-width="2" stroke-linecap="round"/>
+  <path d="M15 84h23v24H15zm171-11h20v35h-20zm22 16h16v19h-16z" fill="#d9eef7" stroke="#303030" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M20 91h5m-5 8h5m8-8h-3m161-10h6m-6 9h6m14 8h5" stroke="#007bc7" stroke-width="2" stroke-linecap="round"/>
+  <path d="M147 108l12-64 5-11 5 11 12 64z" fill="#fff" stroke="#303030" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M164 46v52" stroke="#007bc7" stroke-width="2" stroke-linecap="round"/>
+  <rect x="53" y="18" width="83" height="95" rx="7" fill="#fff" stroke="#303030" stroke-width="2"/>
+  <path d="M66 44h42m-42 11h55M66 66h55m-55 11h43" stroke="#007bc7" stroke-width="3" stroke-linecap="round"/>
+  <path d="M67 31h20" stroke="#303030" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="115" cy="91" r="20" fill="#ffdb2e" stroke="#303030" stroke-width="2"/>
+  <path d="M106 91h18m-9-9v18" stroke="#303030" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M35 34l4-4m-2 14h6m156-8 4-4m-2 14h6" stroke="#007bc7" stroke-width="2" stroke-linecap="round"/>
+</svg>

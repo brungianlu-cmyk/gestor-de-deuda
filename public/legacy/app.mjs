@@ -7,6 +7,17 @@ const $ = (id) => document.getElementById(id);
 const fileInput = $('file');
 const dropzone = $('dropzone');
 const runButton = $('runBtn');
+const exampleInput = $('example');
+
+function resizeExample() {
+  exampleInput.style.height = '75px';
+  exampleInput.style.height = `${Math.max(75, exampleInput.scrollHeight)}px`;
+}
+
+exampleInput.addEventListener('input', resizeExample);
+window.addEventListener('resize', resizeExample);
+resizeExample();
+
 let selectedFile = null;
 let activeResult = null;
 let cancelled = false;
@@ -262,7 +273,7 @@ runButton.addEventListener('click', async () => {
     $('stage').textContent = 'Validando importes y redactando…';
     const result = buildResult(extraction.pages, $('example').value.trim());
     let aiError = null;
-    if ($('useAi').checked && result.usedExample) {
+    if (result.usedExample) {
       try { await enhanceWithAI(result, extraction.pages); }
       catch (error) {
         if (cancelled) throw error;
