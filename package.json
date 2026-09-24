@@ -6,13 +6,13 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "dev": "vinext dev --port 5173",
+    "dev": "node --env-file=.env.local --env-file-if-exists=.env.google-drive.local node_modules/vinext/dist/cli.js dev --port 5173",
     "build": "node scripts/build.mjs",
     "test:parsing": "node --test tests/parse-debt.test.mjs",
     "test:drive": "node --import tsx --test tests/drive-history.test.mjs",
     "test": "npm run test:parsing && npm run test:drive",
     "google-drive:auth": "node --env-file=.env.local scripts/google-drive-auth.mjs",
-    "start": "node scripts/preview.mjs",
+    "start": "node --env-file=.env.local --env-file-if-exists=.env.google-drive.local scripts/preview.mjs",
     "deploy:check": "npm run build && wrangler deploy --dry-run",
     "deploy": "npm run build && wrangler deploy",
     "cloudflare:secret": "node scripts/sync-cloudflare-secret.mjs",

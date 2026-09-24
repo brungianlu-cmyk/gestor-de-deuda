@@ -2,12 +2,14 @@
 
 Aplicación para convertir documentos de deuda en texto jurídico. El PDF se lee y procesa en el navegador. Una copia se archiva en Google Drive junto con el resultado final y un archivo por cada llamada a la IA. Si se incluye un ejemplo de redacción, la interfaz llama a `/api/generate`; el Worker usa la API de OpenAI con una clave privada, registra cada llamada y su respuesta, y verifica los importes antes de devolver el texto.
 
+La interfaz permite agregar indicaciones adicionales a la misma llamada de generación. Cada campo tiene un botón **Usar Ejemplo** que copia su texto gris al campo para editarlo antes de procesar. Cuando el PDF distingue deuda en sede administrativa o judicial, el procesamiento conserva esa distinción por caso siempre que el texto fuente lo permita verificar.
+
 ## Desarrollo local
 
 Requisitos: Node.js 22.13 o superior y npm.
 
 1. Ejecutá `npm ci` en esta carpeta.
-2. Conservá `OPENAI_API_KEY` en `.env.local` (ver `.env.example`). La clave nunca debe ir en el cliente ni en Git.
+2. Conservá `OPENAI_API_KEY` y, cuando completes OAuth, el ID y secreto del cliente de Google en `.env.local` (ver `.env.example`). El script de autorización guarda el refresh token en `.env.google-drive.local`. Ninguno de estos valores debe ir al cliente ni a Git.
 3. Ejecutá `npm run dev` y abrí `http://localhost:5173`.
 
 `npm run build`, `npm run typecheck` y `npm run test:parsing` comprueban la compilación y el procesamiento local. `npm start` permite revisar el build con Vite Preview; `node scripts/test-api-route.mjs` prueba una llamada real con datos ficticios.

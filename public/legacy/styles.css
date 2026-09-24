@@ -28,3 +28,11 @@ body{background:var(--paper);overflow-x:clip}
 @media(max-width:1200px){.city-logo{top:-38px;width:100px}}
 @media(max-width:860px){.intro h1{white-space:normal}}
 @media(max-width:700px){html{background:var(--yellow)}.page{padding-top:calc(32px + env(safe-area-inset-top))}.intro{margin-bottom:40px}.intro::before{top:calc(-32px - env(safe-area-inset-top));bottom:-24px}.city-logo{position:static;display:block;width:120px;margin:0 auto 18px}.intro h1{font-size:2.25rem}.upload{min-height:245px}.example-row textarea{height:132px;min-height:132px}.result{min-height:340px}.result-head{padding:15px}.result-body{min-height:252px}}
+
+.extra-top{border-top:1px solid var(--line);padding-top:17px}
+.extra-row{padding-bottom:15px}
+.example-actions{display:flex;justify-content:flex-end;padding:0 17px 18px 19px}
+.use-example{align-self:end;min-height:42px;padding:10px 14px;border:1px solid #a9cfe6;border-radius:8px;background:#fff;color:var(--blue-dark);font-size:.82rem;font-weight:700;white-space:nowrap}
+.use-example:hover{border-color:var(--blue);background:#eef8fd}
+.use-example:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+@media(max-width:700px){.example-actions{padding:0 17px 17px}.use-example{width:100%}}

@@ -44,6 +44,11 @@ function cleanIdentifier(value) {
   return value.replace(/[.;:,]+$/, '').replace(/^0+(?=\d)/, '');
 }
 
+function sedeTypesFromText(text) {
+  return [...text.matchAll(/\bsede\s+(administrativa|judicial)\b/gi)]
+    .map((match) => match[1].toLowerCase());
+}
+
 function parsePositions(text) {
   const positions = [];
   const rows = [];
@@ -151,10 +156,11 @@ export function extractRecords(pages, example) {
     } else if (previous?.id === id && !marker) {
       record = previous;
     } else {
-      record = { label: variable.label, id, pages: [], positions: [], rows: [], totals: null, warnings: [], lastMarker: 0 };
+      record = { label: variable.label, id, pages: [], positions: [], rows: [], totals: null, warnings: [], lastMarker: 0, sedeTypes: new Set() };
       records.push(record);
     }
     record.pages.push(page.number);
+    for (const sede of sedeTypesFromText(page.text)) record.sedeTypes.add(sede);
     record.lastMarker = marker ? Number(marker[1]) : record.lastMarker + 1;
     const parsed = parsePositions(page.text);
     record.positions.push(...parsed.positions);
@@ -163,6 +169,8 @@ export function extractRecords(pages, example) {
     if (totals) record.totals = totals;
   }
   for (const record of records) {
+    record.sede = record.sedeTypes.size === 1 ? [...record.sedeTypes][0] : null;
+    if (record.sedeTypes.size > 1) record.warnings.push('Se mencionan sedes administrativa y judicial; revisá cuál corresponde a este caso.');
     const periodExample = example.match(/(?:periodos?|cuotas)\s+(.+?)(?=,?\s+por\s+(?:la\s+suma\s+total|un\s+total)\b)/i)?.[1] || '';
     const padMonths = /(?:^|[\s,])0[1-9](?=\s+a|\/)/.test(periodExample);
     record.periods = summarizePositions(record.positions, padMonths);
@@ -198,6 +206,7 @@ function renderFromExample(example, record, ordinal) {
   const amounts = [totals.total, totals.principal, totals.interest];
   let index = 0;
   rendered = rendered.replace(/\$\s*\d[\d.,]*,\d{2}/g, () => `$${formatMoney(amounts[index++])}`);
+  if (record.sede) rendered = rendered.replace(/\bsede\s+(administrativa|judicial)\b/i, `sede ${record.sede}`);
   return index === 3 ? rendered.trim() : null;
 }
 
@@ -219,6 +228,7 @@ export function buildResult(pages, example) {
         principal: formatMoney(record.totals.principal),
         interest: formatMoney(record.totals.interest),
         text,
+        sede: record.sede,
         pages: record.pages,
       });
     }

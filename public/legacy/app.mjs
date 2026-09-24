@@ -8,38 +8,50 @@ const fileInput = $('file');
 const dropzone = $('dropzone');
 const runButton = $('runBtn');
 const exampleInput = $('example');
+const extraInstructionsInput = $('extraInstructions');
+const editableInputs = [exampleInput, extraInstructionsInput];
 
-function placeholderHeight() {
-  const measure = exampleInput.cloneNode();
+function placeholderHeight(input) {
+  const measure = input.cloneNode();
   measure.removeAttribute('id');
   measure.setAttribute('aria-hidden', 'true');
   measure.tabIndex = -1;
-  measure.value = exampleInput.placeholder;
+  measure.value = input.placeholder;
   Object.assign(measure.style, {
     position: 'absolute',
     visibility: 'hidden',
     pointerEvents: 'none',
-    width: `${exampleInput.getBoundingClientRect().width}px`,
+    width: `${input.getBoundingClientRect().width}px`,
     height: '0px',
     minHeight: '0px',
   });
-  exampleInput.parentElement.appendChild(measure);
+  input.parentElement.appendChild(measure);
   const style = getComputedStyle(measure);
   const height = measure.scrollHeight + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
   measure.remove();
   return height;
 }
 
-function resizeExample() {
-  const baseHeight = parseFloat(getComputedStyle(exampleInput).minHeight) || 75;
-  exampleInput.style.height = `${baseHeight}px`;
-  const contentHeight = exampleInput.value ? exampleInput.scrollHeight : placeholderHeight();
-  exampleInput.style.height = `${Math.max(baseHeight, contentHeight)}px`;
+function resizeInput(input) {
+  const baseHeight = parseFloat(getComputedStyle(input).minHeight) || 75;
+  input.style.height = `${baseHeight}px`;
+  const contentHeight = input.value ? input.scrollHeight : placeholderHeight(input);
+  input.style.height = `${Math.max(baseHeight, contentHeight)}px`;
 }
 
-exampleInput.addEventListener('input', resizeExample);
-window.addEventListener('resize', resizeExample);
-resizeExample();
+for (const input of editableInputs) {
+  input.addEventListener('input', () => resizeInput(input));
+  resizeInput(input);
+}
+window.addEventListener('resize', () => editableInputs.forEach(resizeInput));
+
+for (const [buttonId, input] of [['useExample', exampleInput], ['useInstructionsExample', extraInstructionsInput]]) {
+  $(buttonId).addEventListener('click', () => {
+    input.value = input.placeholder;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.focus();
+  });
+}
 
 if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
   const pointer = document.createElement('span');
@@ -48,7 +60,7 @@ if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
   pointer.innerHTML = '<svg viewBox="0 0 16 24" aria-hidden="true"><path d="M8 2v20M3 2h10M3 22h10" stroke="white" stroke-width="4"/><path d="M8 2v20M3 2h10M3 22h10" stroke="currentColor" stroke-width="2"/></svg>';
   pointer.hidden = true;
   document.body.appendChild(pointer);
-  exampleInput.classList.add('visible-pointer');
+  for (const input of editableInputs) input.classList.add('visible-pointer');
 
   const hidePointer = () => { pointer.hidden = true; };
   const showPointer = (event) => {
@@ -59,10 +71,10 @@ if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
 
   document.addEventListener('pointermove', (event) => {
     if (event.pointerType !== 'mouse') return;
-    if (event.target === exampleInput) showPointer(event);
+    if (editableInputs.includes(event.target)) showPointer(event);
     else hidePointer();
   });
-  exampleInput.addEventListener('pointerdown', (event) => {
+  for (const input of editableInputs) input.addEventListener('pointerdown', (event) => {
     if (event.pointerType === 'mouse') showPointer(event);
   });
   document.addEventListener('scroll', hidePointer, true);
@@ -250,18 +262,23 @@ async function callAI(payload, runId, callIndex) {
   }
 }
 
-async function enhanceWithAI(result, pages, runId) {
+async function enhanceWithAI(result, pages, runId, extraInstructions) {
   if (!result.usedExample) return result;
   const numbered = /^\s*\d+\s*[-.)]/.test(result.usedExample);
   if (result.items.length) {
     const output = [];
     let corrected = 0;
+    const sourcePages = new Map(pages.map((page) => [page.number, page.text]));
     for (let offset = 0; offset < result.items.length; offset += 8) {
       if (cancelled) throw new Error('Procesamiento cancelado.');
       $('stage').textContent = `Redactando casos ${offset + 1} a ${Math.min(offset + 8, result.items.length)} de ${result.items.length}`;
       $('progress').style.width = `${Math.round((offset / result.items.length) * 100)}%`;
-      const records = result.items.slice(offset, offset + 8).map((item, index) => ({ ...item, ordinal: offset + index + 1 }));
-      const response = await callAI({ mode: 'records', example: result.usedExample, records }, runId, Math.floor(offset / 8) + 1);
+      const records = result.items.slice(offset, offset + 8).map((item, index) => ({
+        ...item,
+        ordinal: offset + index + 1,
+        sourceExcerpt: item.pages.map((number) => sourcePages.get(number) || '').join('\n').slice(0, 6000),
+      }));
+      const response = await callAI({ mode: 'records', example: result.usedExample, extraInstructions, records }, runId, Math.floor(offset / 8) + 1);
       output.push(...response.items.map((item) => item.text));
       corrected += response.corrected || 0;
     }
@@ -279,7 +296,7 @@ async function enhanceWithAI(result, pages, runId) {
     if (cancelled) throw new Error('Procesamiento cancelado.');
     $('stage').textContent = `Redactando bloque ${index + 1} de ${chunks.length}`;
     $('progress').style.width = `${Math.round((index / chunks.length) * 100)}%`;
-    const response = await callAI({ mode: 'pages', example: result.usedExample, pages: chunks[index] }, runId, index + 1);
+    const response = await callAI({ mode: 'pages', example: result.usedExample, extraInstructions, pages: chunks[index] }, runId, index + 1);
     for (const item of response.items) if (!found.has(item.id)) found.set(item.id, item.text);
   }
   if (!found.size) throw new Error('La IA no identificó casos completos en este documento.');
@@ -332,6 +349,8 @@ runButton.addEventListener('click', async () => {
   }
   if (!selectedFile) return showToast('Primero adjuntá un PDF');
   const file = selectedFile;
+  const example = exampleInput.value.trim();
+  const extraInstructions = extraInstructionsInput.value.trim();
   cancelled = false;
   activeResult = null;
   runButton.dataset.running = 'true';
@@ -349,10 +368,10 @@ runButton.addEventListener('click', async () => {
     const extraction = await extractPdf(file);
     if (cancelled) throw new Error('Procesamiento cancelado.');
     $('stage').textContent = 'Validando importes y redactando…';
-    const result = buildResult(extraction.pages, $('example').value.trim());
+    const result = buildResult(extraction.pages, example);
     let aiError = null;
     if (result.usedExample) {
-      try { await enhanceWithAI(result, extraction.pages, runId); }
+      try { await enhanceWithAI(result, extraction.pages, runId, extraInstructions); }
       catch (error) {
         if (cancelled) throw error;
         aiError = error instanceof Error ? error.message : 'Error desconocido';

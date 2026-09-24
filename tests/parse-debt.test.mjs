@@ -22,6 +22,19 @@ test('adapta la misma estructura a un dominio', () => {
   assert.match(result.text, /periodos 09\/2025/);
 });
 
+test('conserva la sede administrativa o judicial indicada para cada caso', () => {
+  const example = 'Partida N° 100-A. deuda en sede administrativa -periodos 01/2025, por un total de $150,00 ($100,00 privilegio general y especial y $50,00 quirografario)';
+  const pages = [
+    { number: 1, text: 'PARTIDA: 100-A\nDeuda en sede administrativa\n2025 - 001 100,00 01/02/2025 50,00 150,00\nTOTAL: 100,00 50,00 150,00' },
+    { number: 2, text: 'PARTIDA: 100-B\nDeuda en sede judicial\n2025 - 002 100,00 01/03/2025 50,00 150,00\nTOTAL: 100,00 50,00 150,00' },
+  ];
+  const result = buildResult(pages, example);
+  assert.equal(result.count, 2);
+  assert.equal(result.items[0].sede, 'administrativa');
+  assert.equal(result.items[1].sede, 'judicial');
+  assert.match(result.items[1].text, /Partida N° 100-B\. deuda en sede judicial/);
+});
+
 test('genera una lista numerada de dominios aun sin ejemplo escrito', () => {
   const pages = [
     { number: 1, text: 'Página: 1 2\nDOMINIO OCM515 -31\n2021 - 005 100,00 20/10/2021 50,00 150,00\nTOTAL: 100,00 50,00 150,00' },
