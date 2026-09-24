@@ -36,3 +36,7 @@ body{background:var(--paper);overflow-x:clip}
 .use-example:hover{border-color:var(--blue);background:#eef8fd}
 .use-example:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 @media(max-width:700px){.example-actions{padding:0 17px 17px}.use-example{width:100%}}
+
+.upload:focus-within{outline:none}
+.upload:has(input:focus-visible){outline:3px solid var(--blue);outline-offset:3px}
+.upload.picker-cancelled:hover:not(.drag){transform:none;background:var(--white);border-color:#a6cfe7}

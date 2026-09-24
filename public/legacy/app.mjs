@@ -136,7 +136,27 @@ function chooseFile(file) {
   $('empty').style.display = 'block';
 }
 
-fileInput.addEventListener('change', (event) => chooseFile(event.target.files[0]));
+let pickerOpenedWithPointer = false;
+function resetCancelledPicker() {
+  if (pickerOpenedWithPointer) {
+    fileInput.blur();
+    dropzone.classList.add('picker-cancelled');
+  }
+  pickerOpenedWithPointer = false;
+}
+
+fileInput.addEventListener('pointerdown', () => { pickerOpenedWithPointer = true; });
+fileInput.addEventListener('keydown', () => { pickerOpenedWithPointer = false; });
+fileInput.addEventListener('click', () => dropzone.classList.remove('picker-cancelled'));
+fileInput.addEventListener('cancel', resetCancelledPicker);
+fileInput.addEventListener('change', (event) => {
+  const file = event.target.files[0];
+  if (!file) return resetCancelledPicker();
+  pickerOpenedWithPointer = false;
+  dropzone.classList.remove('picker-cancelled');
+  chooseFile(file);
+});
+dropzone.addEventListener('pointerleave', () => dropzone.classList.remove('picker-cancelled'));
 for (const name of ['dragenter', 'dragover']) dropzone.addEventListener(name, (event) => {
   event.preventDefault();
   dropzone.classList.add('drag');
